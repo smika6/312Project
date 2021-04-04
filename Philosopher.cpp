@@ -11,28 +11,40 @@
 pthread_mutex_t lockOne;
 pthread_mutex_t lockTwo;
 
+//forks, 1 = on table, 0 = taken
 int forks[5] = {1,1,1,1,1};
 int seats[5] = {0,0,0,0,0};
 int tick = 0;
 
-bool CoordinatorPermission(int ID)
+struct philosopher{
+	int ID;	
+	int eatTime;
+	int thinkTime;
+	int seat;
+};
+
+bool CoordinatorPermission(struct philosopher phil)
 {
-	seats[tick] = ID;
-	tick++;
+	//check which seat the philosopher is in
 	int seat = -1;
 	for(int i = 0; i < NUMPHIL; i++)
 	{
-		if (seats[i] == ID)
+		if (seats[i] == phil.ID)
 			seat = i;
 	}
-	//printf("seat: %d",seat);
+	
 	if (!(seat == -1))
 	{
-		printf("before forks: %d %d %d %d %d\n", forks[0],forks[1],forks[2],forks[3],forks[4]);
-		if ((forks[seat%5] > 0) && (forks[(seat+1)%5] > 0))
+		//forks available initially
+		//printf("before forks: 0:%d 1:%d 2:%d 3:%d 4:%d\n", forks[0],forks[1],forks[2],forks[3],forks[4]);
+		//if both forks on either side of the philosopher are available,
+		//printf("checking seats: %d and %d\n",seat%5,(seat+1)%5);
+		if ((forks[seat%5] == 1) && (forks[(seat+1)%5] == 1))
 		{
+			//pick up forks
 			forks[seat%5] = 0;
 			forks[(seat+1)%5] = 0;
+			//print forks after taken
 			printf("after forks: %d %d %d %d %d\n", forks[0],forks[1],forks[2],forks[3],forks[4]);
 			return true;
 		}
@@ -41,15 +53,16 @@ bool CoordinatorPermission(int ID)
 			return false;
 		
 	} else {
-		printf("Error in finding philosopher %d among seats.(in coordinator)", ID);
+		printf("Error in finding philosopher %d among seats.(in coordinator)", phil.ID);
 		exit(5);
 	}
 }
 
-int AssignSeat(int ID)
+int AssignSeat(struct philosopher phil)
 {
 	pthread_mutex_lock(&lockTwo);
-	seats[tick] = ID;
+	seats[tick] = phil.ID;
+	phil.seat = tick;
 	tick++;
 	pthread_mutex_unlock(&lockTwo);
 	return tick-1;
@@ -57,14 +70,15 @@ int AssignSeat(int ID)
 
 using namespace std;
 
-void *philosopher(void *input)
+void *philosopherMethod(void *input)
 {
-	int ID = *(int *)input;
-	int seat = AssignSeat(ID);
-	bool permission;
-	for (int i = 0; i <NUMPHIL; i++)
+	struct philosopher phil = *(struct philosopher *)input;
+	
+	phil.seat = AssignSeat(phil);
+	printf("philosopher: %d, seat: %d\n",phil.ID, phil.seat);
+/*	for (int i = 0; i <NUMPHIL; i++)
 	{
-		if (seats[i] == ID)
+		if (seats[i] == phil.ID)
 		{
 			seat = i;
 		}
@@ -73,26 +87,22 @@ void *philosopher(void *input)
 	{
 		printf("error in finding philospher %d among seats. (in philosopher)", ID);
 		exit(4);
-	}	
-	int thinkTime = rand()%TIMEMAX +1;
-	int eatTime = rand()%TIMEMAX +1;
+	}	*/
+	//assign random thinking and eating times for each philosopher
 	sleep(1);
 	while(true)
 	{
 		//printf("philosopher %d is thinking\n",ID);
-		sleep(thinkTime);
+		sleep(phil.thinkTime);
 		pthread_mutex_lock(&lockOne);
-		if (CoordinatorPermission(ID))
-		{
-			//printf("philosopher %d is done thinking\n", ID);
-			printf("philosopher %d is eating\n", ID);
-			sleep(eatTime);
+		if (CoordinatorPermission(phil))
+		{	
+			printf("philosopher %d is eating\n", phil.ID);
+			sleep(phil.eatTime);
 			//printf("philosopher %d is done eating\n",ID);
-			forks[seat%5] = 1;
-			forks[(seat+1)%5] = 1;
-		} else {
-			printf("philosopher %d is unable to eat yet, continuing to think\n", ID);
-		}
+			forks[phil.seat%5] = 1;
+			forks[(phil.seat+1)%5] = 1;
+		} 
 		pthread_mutex_unlock(&lockOne);
 	}
 }
@@ -103,12 +113,15 @@ int main(int argc,char *argv[])
 	int error;
 	//5 threads per assignment
 	pthread_t thread[NUMPHIL];
+	struct philosopher phil[NUMPHIL];
 	int ID;
 	for (int i = 0; i < NUMPHIL; i++)
 	{
-		ID = rand()%1000 + 1;
-		printf("Id %d = %d\n", i, ID);
-		error = pthread_create(&thread[i], NULL, &philosopher, (void* ) &ID);
+		phil[i].ID = rand()%1000 + 1;
+		phil[i].eatTime = rand()%TIMEMAX + 1;
+		phil[i].thinkTime = rand()%TIMEMAX + 1;
+		printf("Id %d = %d, eatTime = %d, thinkTime = %d\n", i, phil[i].ID,phil[i].eatTime,phil[i].thinkTime);
+		error = pthread_create(&thread[i], NULL, &philosopherMethod, (void* ) &phil[i]);
 		sleep(0.5);
 	}
 	
