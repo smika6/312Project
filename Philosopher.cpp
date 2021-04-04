@@ -38,7 +38,6 @@ bool CoordinatorPermission(struct philosopher phil)
 		//forks available initially
 		//printf("before forks: 0:%d 1:%d 2:%d 3:%d 4:%d\n", forks[0],forks[1],forks[2],forks[3],forks[4]);
 		//if both forks on either side of the philosopher are available,
-		//printf("checking seats: %d and %d\n",seat%5,(seat+1)%5);
 		if ((forks[seat%5] == 1) && (forks[(seat+1)%5] == 1))
 		{
 			//pick up forks
@@ -76,30 +75,18 @@ void *philosopherMethod(void *input)
 	
 	phil.seat = AssignSeat(phil);
 	printf("philosopher: %d, seat: %d\n",phil.ID, phil.seat);
-/*	for (int i = 0; i <NUMPHIL; i++)
-	{
-		if (seats[i] == phil.ID)
-		{
-			seat = i;
-		}
-	}
-	if (seat == -1)
-	{
-		printf("error in finding philospher %d among seats. (in philosopher)", ID);
-		exit(4);
-	}	*/
-	//assign random thinking and eating times for each philosopher
 	sleep(1);
+	printf("philosopher %d is thinking\n",phil.ID);
 	while(true)
 	{
-		//printf("philosopher %d is thinking\n",ID);
 		sleep(phil.thinkTime);
 		pthread_mutex_lock(&lockOne);
 		if (CoordinatorPermission(phil))
 		{	
 			printf("philosopher %d is eating\n", phil.ID);
 			sleep(phil.eatTime);
-			//printf("philosopher %d is done eating\n",ID);
+			printf("philosopher %d is done eating\n",phil.ID);
+			printf("philosopher %d is thinking\n",phil.ID);
 			forks[phil.seat%5] = 1;
 			forks[(phil.seat+1)%5] = 1;
 		} 
@@ -129,7 +116,6 @@ int main(int argc,char *argv[])
 	{
 		pthread_join(thread[i],NULL);
 	}
-	//philosopher();
 	
 	return 0;
 }
