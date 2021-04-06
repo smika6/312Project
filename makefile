@@ -1,12 +1,12 @@
 Makefile:
 
-all: mutualexlusion run
+all: Philosopher run
 
-mutualexlusion: mutualexlusion.c
-	g++ mutualexlusion.c -o mutualexlusion -std=c++0x
+mutualexlusion: Philosopher.cpp
+	g++ Philosopher.cpp -o Philosopher -std=c++0x
 
-run: mutualexlusion
-	./mutualexlusion 
+run: Philosopher
+	./Philosopher 
 
 clean:
-	rm -f mutualexlusion
+	rm -f Philosopher
