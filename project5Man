@@ -1,0 +1,35 @@
+//Man page
+
+.TH Project 5 
+
+.SH NAME
+.B Project 5 
+-Program that solves the Dining Philosopher's Problem
+
+.SH SYNOPSIS
+.B Project 5
+.RB {|OBJECT |}
+.RB {|OPTIONS |}
+
+.SH DESCRIPTION
+This project includes a coordinator and 5 philosophers dinning.They are sitting at a table while 
+thinking and eating. There is only one chopstick on either side of them and each philosopher can 
+only eat if he has two chopsticks. The most amount of people eating at a time is two while the rest 
+think. Add some more stuff when it is finished
+
+.SH FILES
+Add file names later
+
+.SH EXIT STATUS
+.TP
+.B
+0
+Success
+
+.TP
+.B
+-1
+Failed
+
+.SH CREDITS
+Christoffer Schmitt, Kaleb Byrne, Jacob Hopkins, Rose Hughes
