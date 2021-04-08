@@ -18,3 +18,15 @@
 #define SERVERIP "199.17.28.75"
 #define SERVERNAME "ahscentos"
 #define BUFL 100
+
+#define NUMPHIL 5
+#define TIMEMAX 5
+
+using namespace std;
+
+struct philosopher{
+	int ID;	
+	int eatTime;
+	int thinkTime;
+	int seat;
+};
