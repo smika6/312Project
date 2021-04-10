@@ -68,6 +68,7 @@ int main(int argc, char* argv[])
 	}
 
 	err = send(cSocket, "Connection made!\n", 17, 0);
+	print("Connection Made Sent");
 
 	// we need some int/bool to determine if both forks were grabed and we should eat, or if we didnt get the forks we wanted and will think only
 
