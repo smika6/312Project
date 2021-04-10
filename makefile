@@ -1,12 +1,16 @@
 Makefile:
 
-all: Philosopher run
+all: server client run
 
-mutualexlusion: Philosopher.cpp
-	g++ Philosopher.cpp -o Philosopher -std=c++0x
+server: philServer.cpp
+	g++ philServer.cpp -o server
 
-run: Philosopher
-	./Philosopher 
+client: philClient.cpp
+	g++ philClient.cpp -o client
+
+run: server
+	./server
 
 clean:
-	rm -f Philosopher
+	rm -f server
+	rm -f client
