@@ -45,5 +45,6 @@ struct philosopher{
 #define CONNECTING    "000"
 #define ASSIGNSEATING "100"
 #define REQUESTFORK   "200"
-#define RETURNFORK    "300"
-#define LEAVEWAITLIST "400"
+#define WHICHFORK     "300"
+#define WHICHSEAT     "400"
+#define LEAVEWAITLIST "500"
