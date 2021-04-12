@@ -29,3 +29,20 @@ struct philosopher{
 	int thinkTime;
 	int seat;
 };
+
+#define FORK1 "001"
+#define FORK2 "002"
+#define FORK3 "003"
+#define FORK4 "004"
+#define FORK5 "005"
+
+#define SEAT1 "010"
+#define SEAT2 "020"
+#define SEAT3 "030"
+#define SEAT4 "040"
+#define SEAT5 "050"
+
+#define ASSIGNSEATING "100"
+#define REQUESTFORK   "200"
+#define RETURNFORK    "300"
+#define LEAVEWAITLIST "400"
