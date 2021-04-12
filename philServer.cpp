@@ -87,15 +87,15 @@ int main(int argc, char const *argv[])
 	if(buf.compare(REQUESTFORK) == 0){
 		printf("Requesting fork command issued\n");
 		send(new_socket, WHICHFORK, strlen(whichfork), 0 );    
-		valread = read( new_socket , buffer, BUFL);
-		printf("client requesting fork %s\n",&buffer);
+		//valread = read( new_socket , buffer, BUFL);
+		//printf("client requesting fork %s\n",&buffer);
 	}
 
 	else if(buf.compare(RETURNFORK) == 0){
 		printf("Return fork command issued\n");
 		send(new_socket, WHICHFORK, strlen(whichfork), 0 );    
-		valread = read( new_socket , buffer, BUFL);
-		printf("returning %s\n",&buffer);
+		//valread = read( new_socket , buffer, BUFL);
+		//printf("returning %s\n",&buffer);
 
 	}
 
