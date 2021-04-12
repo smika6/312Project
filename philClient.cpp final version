@@ -1,0 +1,204 @@
+// Client side C/C++ program to demonstrate Socket programming
+#include "philUtils.h"
+
+stringstream ss;
+char buffer[BUFL] = {0};
+int sock = 0, valread;
+//ostringstream stringconverter;
+//char forkStr[5+sizeof(char)];
+
+int requestSeating(){
+	//send to server 'seating'
+	//be updated in the servers array
+	//be returned the index/location in the ring
+	//return that location for client reference
+
+	int spot;
+	printf("Requesting Seating.\n");
+	send(sock, ASSIGNSEATING, strlen(ASSIGNSEATING), 0);
+	
+	valread = read(sock,buffer,BUFL);
+	ss << buffer;
+	ss >> valread;
+	
+	spot = atoi(buffer);
+	printf("Server says: %s\n",buffer);
+	printf("num value: %d\n",valread);
+	printf("spot: %d\n",spot);
+	return spot;
+
+	//read in the seat
+	//assign it/return it
+}
+
+int requestFork(int forkIndex){
+	//send to server 'request'
+	//get back an ok for which fork
+	//send the server the desired fork
+	//sit around looking for that ok you have the fork 
+	
+
+	strcpy(buffer, "");
+	switch (forkIndex){
+	
+		case 0:
+			strcpy(buffer,FORK1);
+			break;
+		case 1:
+			strcpy(buffer,FORK2);
+			break;
+		case 2:
+			strcpy(buffer,FORK3);
+			break;
+		case 3:
+			strcpy(buffer,FORK4);
+			break;
+		case 4:
+			strcpy(buffer,FORK5);
+			break;
+	}
+	
+	send(sock, REQUESTFORK, strlen(REQUESTFORK), 0);
+	
+	printf("Requesting Fork: %d\n", forkIndex);
+	send(sock, buffer, strlen(buffer), 0); 
+	printf("sending: %s\n",buffer);
+	
+	strcpy(buffer,"");
+	valread = read( sock , buffer, BUFL);    
+	printf("Server says: %s\n",buffer );
+	
+	if (strcmp(buffer,"OKK"))
+		return true;
+	else if (strcmp(buffer,"NOO"))
+		return false;
+
+	//sprintf(forkStr,"%d",forkIndex);
+	//send(sock, forkStr, strlen(forkStr), 0);
+
+	return 0;
+}
+
+int returnFork(int forkIndex){
+	//send to server 'return'
+	//get back an ok for which fork
+	//send the server the fork for return
+	//sit around looking for that ok you no longer have the fork
+	
+	switch (forkIndex){
+	
+		case 0:
+			strcpy(buffer,FORK1);
+			break;
+		case 1:
+			strcpy(buffer,FORK2);
+			break;
+		case 2:
+			strcpy(buffer,FORK3);
+			break;
+		case 3:
+			strcpy(buffer,FORK4);
+			break;
+		case 4:
+			strcpy(buffer,FORK5);
+			break;
+	}
+
+	printf("Returning Fork: %d\n", forkIndex);
+	send(sock, RETURNFORK, strlen(RETURNFORK), 0); 
+	
+	send(sock,buffer,BUFL,0);
+		
+	valread = read( sock , buffer, BUFL);    
+	printf("Fork Returned: %s\n",buffer );	
+	
+	//sprintf(forkStr,"%d",forkIndex);
+	//send(sock, forkStr, strlen(forkStr), 0);
+
+	return 0;
+}
+
+void eat(struct philosopher phil){
+
+	phil.eatTime = rand()%TIMEMAX + 1;
+	printf("Phil at seat %d is Eating for %d\n", phil.seat, phil.eatTime);
+	sleep(phil.eatTime);
+}
+
+void think(struct philosopher phil){
+	
+	phil.thinkTime = rand()%TIMEMAX + 1;	
+	printf("Phil at seat %d is Thinking for %d\n", phil.seat, phil.thinkTime);
+	sleep(phil.thinkTime);
+}
+
+int main(int argc, char const *argv[])
+{
+    struct philosopher phil;
+    struct sockaddr_in serv_addr;
+    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    {
+        printf("\n Socket creation error \n");
+        return -1;
+    }
+   
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(SERVERPORT);
+       
+    // Convert IPv4 and IPv6 addresses from text to binary form
+    if(inet_pton(AF_INET, SERVERIP, &serv_addr.sin_addr)<=0) 
+    {
+        printf("\nInvalid address/ Address not supported \n");
+        return -1;
+    }
+   
+    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    {
+        printf("\nConnection Failed \n");
+        return -1;
+    }
+    send(sock , CONNECTING, strlen(CONNECTING) , 0 );
+    printf("Attempting to Connect\n");
+    valread = read( sock , buffer, BUFL);
+    printf("%s\n",buffer );
+
+    sprintf(buffer,"%s","");
+    phil.seat = requestSeating();
+    
+	bool firstFork = false;
+	bool secondFork = false;
+
+    while(1 && phil.seat != -1) {
+		if (!firstFork) {
+			sprintf(buffer, "%s", "");
+			firstFork = requestFork(phil.seat % 5);
+		}
+		if (!secondFork) {
+			sprintf(buffer, "%s", "");
+			secondFork = requestFork((phil.seat + 1) % 5);
+		}
+        sprintf(buffer,"%s","");
+
+	//if it takes too long avoid deadlock by returning fork
+		//returnFork(phil.seat%5);
+		
+	//if we have both forks then eat and return them
+	if (firstFork && secondFork)
+	{
+	
+	eat(phil);
+	
+        sprintf(buffer,"%s","");
+	returnFork(phil.seat%5);
+	 
+        sprintf(buffer,"%s","");
+	returnFork((phil.seat+1)%5);
+	}
+	//always think after we eat or do not eat
+	think(phil);
+    }
+    
+
+    printf("Client is now exiting.\n");
+    return 0;
+}
