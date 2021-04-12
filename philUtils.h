@@ -14,7 +14,7 @@
 #include <time.h>
 #include <signal.h>
 
-#define SERVERPORT 31203
+#define SERVERPORT 25565
 #define SERVERIP "199.17.28.75"
 #define SERVERNAME "ahscentos"
 #define BUFL 1024
