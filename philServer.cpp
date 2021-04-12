@@ -2,9 +2,17 @@
 #include "philUtils.h"
 
 
-int numberOfSeats = 5;
-int forks[5] = {1,1,1,1,1};
-int seats[5] = {0,0,0,0,0};
+const int numberOfSeats = 5;
+
+//this keeps track of fork locations,
+//here i think 1 means fork present, 0 means its taken/missing
+int forks[numberOfSeats] = {1,1,1,1,1};
+
+//0 is an empty seat and 1 is taken
+int seats[numberOfSeats] = {0,0,0,0,0};
+
+//this will keep track of whos in line to receive a specific fork
+int waitlist[numberOfSeats][numberOfSeats];
 
 
 int assignSeat()
@@ -25,8 +33,6 @@ int main(int argc, char const *argv[])
     int opt = 1;
     int addrlen = sizeof(address);
     char buffer[BUFL] = {0};
-    char *ready = "Server Ready for Commands";
-    char *whichfork = "which fork               ";
     string buf;
        
     // Creating socket file descriptor
@@ -68,7 +74,7 @@ int main(int argc, char const *argv[])
     }
     printf("Successful Connection Made\n");
     valread = read( new_socket , buffer, BUFL);
-    send(new_socket , ready , strlen(ready) , 0 );
+    send(new_socket , CONNECTING , strlen(ready) , 0 );
 
     while(1){
 	printf("Listinging...\n");
@@ -78,35 +84,35 @@ int main(int argc, char const *argv[])
 
 	buf = buffer;
 
-	if(buf.compare("request fork   ") == 0){
+	if(buf.compare(REQUESTFORK) == 0){
 		printf("Requesting fork command issued\n");
-		send(new_socket, whichfork, strlen(whichfork), 0 );    
-		valread = read( new_socket , buffer, 2);
+		send(new_socket, WHICHFORK, strlen(whichfork), 0 );    
+		valread = read( new_socket , buffer, BUFL);
 		printf("client requesting fork %s\n",&buffer);
 	}
 
-	else if(buf.compare("return fork     ") == 0){
-		printf("return fork\n");
-		send(new_socket, whichfork, strlen(whichfork), 0 );    
+	else if(buf.compare(RETURNFORK) == 0){
+		printf("Return fork command issued\n");
+		send(new_socket, WHICHFORK, strlen(whichfork), 0 );    
 		valread = read( new_socket , buffer, BUFL);
 		printf("returning %s\n",&buffer);
 
 	}
 
-	else if(buf.compare("request seating") == 0){
+	else if(buf.compare(ASSIGNSEATING) == 0){
 		printf("Client Is Requesting Seating\n");
 		int seatSelection = assignSeat();
 		printf("Client Seat Selection: %d\n", seatSelection);
 		//char* seatStr = "  ";
 		//sprintf(seatStr, "%d", seatSelection);
-		sprintf(buffer,"%s","");
+	}
+	    
+	else if(buf.compare(LEAVEWAITLIST) == 0){
 	}
 
 	else {
 		printf("Unkown Request\n");
 	}
-	
-	sprintf(buffer,"%s","");
     }
 
     printf("Server is now exiting.\n");   
