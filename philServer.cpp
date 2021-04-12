@@ -74,7 +74,7 @@ int main(int argc, char const *argv[])
     }
     printf("Successful Connection Made\n");
     valread = read( new_socket , buffer, BUFL);
-    send(new_socket , CONNECTING , strlen(ready) , 0 );
+    send(new_socket , CONNECTING , strlen(CONNECTING) , 0 );
 
     while(1){
 	printf("Listinging...\n");
@@ -86,14 +86,14 @@ int main(int argc, char const *argv[])
 
 	if(buf.compare(REQUESTFORK) == 0){
 		printf("Requesting fork command issued\n");
-		send(new_socket, WHICHFORK, strlen(whichfork), 0 );    
+		send(new_socket, WHICHFORK, strlen(WHICHFORK), 0 );    
 		//valread = read( new_socket , buffer, BUFL);
 		//printf("client requesting fork %s\n",&buffer);
 	}
 
 	else if(buf.compare(RETURNFORK) == 0){
 		printf("Return fork command issued\n");
-		send(new_socket, WHICHFORK, strlen(whichfork), 0 );    
+		send(new_socket, WHICHFORK, strlen(WHICHFORK), 0 );    
 		//valread = read( new_socket , buffer, BUFL);
 		//printf("returning %s\n",&buffer);
 
