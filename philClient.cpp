@@ -3,22 +3,17 @@
 
 char buffer[BUFL] = {0};
 int sock = 0, valread;
-char *forkRequestStr = "request fork   ";
-char *forkReturnStr =  "return fork    ";
-char *seatRequestStr = "request seating";
-ostringstream stringconverter;
-char forkStr[5+sizeof(char)];
+//ostringstream stringconverter;
+//char forkStr[5+sizeof(char)];
 
 int requestSeating(){
 	//send to server 'seating'
 	//be updated in the servers array
 	//be returned the index/location in the ring
 	//return that location for client reference
-	sprintf(buffer, "%s", "");	
 
 	printf("Requesting Seating.\n");
-	send(sock, seatRequestStr, strlen(seatRequestStr), 0); 
-	sprintf(buffer,"%s","");
+	send(sock, ASSIGNSEATING, strlen(ASSIGNSEATING), 0);
 
 	//read in the seat
 	//assign it/return it
@@ -30,14 +25,14 @@ int requestFork(int forkIndex){
 	//send the server the desired fork
 	//sit around looking for that ok you have the fork 
 
-	sprintf(buffer,"%s","");
 	printf("Requesting Fork: %d\n", forkIndex);
-	send(sock, forkRequestStr, strlen(forkRequestStr), 0); 
+	send(sock, REQUESTFORK, strlen(REQUESTFORK), 0); 
+	
 	valread = read( sock , buffer, BUFL);    
 	printf("Server says: %s\n",buffer );
 
-	sprintf(forkStr,"%d",forkIndex);
-	send(sock, forkStr, strlen(forkStr), 0);
+	//sprintf(forkStr,"%d",forkIndex);
+	//send(sock, forkStr, strlen(forkStr), 0);
 
 	return 0;
 }
@@ -49,11 +44,13 @@ int returnFork(int forkIndex){
 	//sit around looking for that ok you no longer have the fork
 
 	printf("Returning Fork: %d\n", forkIndex);
-	send(sock, forkReturnStr, strlen(forkReturnStr), 0); 
+	send(sock, RETURNFORK, strlen(RETURNFORK), 0); 
+		
 	valread = read( sock , buffer, BUFL);    
 	printf("%s\n",buffer );	
-	sprintf(forkStr,"%d",forkIndex);
-	send(sock, forkStr, strlen(forkStr), 0);
+	
+	//sprintf(forkStr,"%d",forkIndex);
+	//send(sock, forkStr, strlen(forkStr), 0);
 
 	return 0;
 }
@@ -76,7 +73,6 @@ int main(int argc, char const *argv[])
 {
     struct philosopher phil;
     struct sockaddr_in serv_addr;
-    char *hello = "Connecting";
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         printf("\n Socket creation error \n");
@@ -98,7 +94,7 @@ int main(int argc, char const *argv[])
         printf("\nConnection Failed \n");
         return -1;
     }
-    send(sock , hello , strlen(hello) , 0 );
+    send(sock , CONNECTING, strlen(CONNECTING) , 0 );
     printf("Attempting to Connect\n");
     valread = read( sock , buffer, BUFL);
     printf("%s\n",buffer );
@@ -106,21 +102,23 @@ int main(int argc, char const *argv[])
     sprintf(buffer,"%s","");
     phil.seat = requestSeating();
     
-    while(1) {
+    while(1 && phil.seat != -1) {
 
         sprintf(buffer,"%s","");
-
 	requestFork(phil.seat%5);
 
         sprintf(buffer,"%s","");
-
 	requestFork((phil.seat+1)%5);
 	//if it takes too long avoid deadlock by returning fork
 		//returnFork(phil.seat%5);
 		
 	//if we have both forks then eat and return them
 	eat(phil);
+	
+        sprintf(buffer,"%s","");
 	returnFork(phil.seat%5);
+	 
+        sprintf(buffer,"%s","");
 	returnFork((phil.seat+1)%5);
 
 	//always think after we eat or do not eat
