@@ -42,6 +42,7 @@ struct philosopher{
 #define SEAT4 "040"
 #define SEAT5 "050"
 
+#define CONNECTING    "000"
 #define ASSIGNSEATING "100"
 #define REQUESTFORK   "200"
 #define RETURNFORK    "300"
