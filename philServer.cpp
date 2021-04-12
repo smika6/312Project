@@ -2,17 +2,17 @@
 #include "philUtils.h"
 
 
-const int numberOfSeats = 5;
+const int numberOfSeats = NUMPHIL;
 
 //this keeps track of fork locations,
 //here i think 1 means fork present, 0 means its taken/missing
-int forks[numberOfSeats] = {1,1,1,1,1};
+int forks[NUMPHIL] = {1,1,1,1,1};
 
 //0 is an empty seat and 1 is taken
-int seats[numberOfSeats] = {0,0,0,0,0};
+int seats[NUMPHIL] = {0,0,0,0,0};
 
 //this will keep track of whos in line to receive a specific fork
-int waitlist[numberOfSeats][numberOfSeats];
+int waitlist[NUMPHIL][NUMPHIL];
 
 
 int assignSeat()
